@@ -1,16 +1,17 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.IOUtils;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.Objects;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String NEW_LINE = System.getProperty("line.separator");
+    public static final String REGEX = " ";
 
     private Socket connection;
 
@@ -20,17 +21,26 @@ public class RequestHandler extends Thread {
 
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+            connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            String requestMessage = IOUtils.getRequestMessage(in);
+            String url = getUrl(requestMessage);
+            if ("/index.html".equals(url)) {
+                DataOutputStream dos = new DataOutputStream(out);
+                byte[] body = "Hello World".getBytes();
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private String getUrl(String requestMessage) {
+        String url = requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
+        log.info("Get URI {}", url);
+        return url;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
