@@ -3,6 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.IOUtils;
+import util.URL;
 
 import java.io.*;
 import java.net.Socket;
@@ -25,23 +26,29 @@ public class RequestHandler extends Thread {
             connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+            // get request
             String requestMessage = IOUtils.getRequestMessage(in);
             String url = getUrl(requestMessage);
-            if ("/index.html".equals(url)) {
-                DataOutputStream dos = new DataOutputStream(out);
-                byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-                response200Header(dos, body.length);
-                responseBody(dos, body);
-            }
+
+            // send response
+            sendResponse(out, url);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
+    private void sendResponse(OutputStream out, String url) throws IOException {
+        log.info("Get URL {}", url);
+        if (URL.index.getUrl().equals(url)) {
+            DataOutputStream dos = new DataOutputStream(out);
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        }
+    }
+
     private String getUrl(String requestMessage) {
-        String url = requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
-        log.info("Get URI {}", url);
-        return url;
+        return requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
