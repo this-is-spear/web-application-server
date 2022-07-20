@@ -1,7 +1,9 @@
 package util;
 
 public enum URL {
-    index("/index.html");
+    INDEX_FORM("/index.html"),
+    REGISTER_FORM("/user/form.html"),
+    REGISTER("/user/create");
 
     private final String url;
 

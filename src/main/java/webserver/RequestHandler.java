@@ -8,12 +8,15 @@ import util.URL;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.Objects;
+import java.util.Map;
+
+import static util.HttpRequestUtils.parseQueryString;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     private static final String NEW_LINE = System.getProperty("line.separator");
     public static final String REGEX = " ";
+    public static final String QUERY = "?";
 
     private Socket connection;
 
@@ -28,27 +31,49 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // get request
             String requestMessage = IOUtils.getRequestMessage(in);
-            String url = getUrl(requestMessage);
+            String url = requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
 
             // send response
-            sendResponse(out, url);
+            if (url.contains(QUERY)) {
+                int index = url.indexOf(QUERY);
+                String requestPath = url.substring(0, index);
+                String params = url.substring(index + 1);
+                sendResponse(out, requestPath, parseQueryString(params));
+            } else {
+                sendResponsePage(out, url);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void sendResponse(OutputStream out, String url) throws IOException {
+    private void sendResponse(OutputStream out, String url, Map<String, String> params) {
+        if (URL.REGISTER.getUrl().equals(url)) {
+            log.info("Register User {}", params.get("name"));
+            log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
+            DataOutputStream dos = new DataOutputStream(out);
+            response200Header(dos, 0);
+        }
+    }
+
+    private void sendResponsePage(OutputStream out, String url) throws IOException {
         log.info("Get URL {}", url);
-        if (URL.index.getUrl().equals(url)) {
+        if (URL.INDEX_FORM.getUrl().equals(url)) {
+            log.info("Move to main form");
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         }
-    }
 
-    private String getUrl(String requestMessage) {
-        return requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
+        if (URL.REGISTER_FORM.getUrl().equals(url)) {
+            log.info("Move to register form");
+            DataOutputStream dos = new DataOutputStream(out);
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+
+        }
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
