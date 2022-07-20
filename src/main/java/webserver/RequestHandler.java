@@ -60,20 +60,20 @@ public class RequestHandler extends Thread {
         log.info("Get URL {}", url);
         if (URL.INDEX_FORM.getUrl().equals(url)) {
             log.info("Move to main form");
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            getResponse(out, url);
         }
 
         if (URL.REGISTER_FORM.getUrl().equals(url)) {
             log.info("Move to register form");
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
-
+            getResponse(out, url);
         }
+    }
+
+    private void getResponse(OutputStream out, String url) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
