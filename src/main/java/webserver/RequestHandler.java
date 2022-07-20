@@ -6,6 +6,7 @@ import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.Objects;
 
 public class RequestHandler extends Thread {
@@ -28,7 +29,7 @@ public class RequestHandler extends Thread {
             String url = getUrl(requestMessage);
             if ("/index.html".equals(url)) {
                 DataOutputStream dos = new DataOutputStream(out);
-                byte[] body = "Hello World".getBytes();
+                byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
                 response200Header(dos, body.length);
                 responseBody(dos, body);
             }
