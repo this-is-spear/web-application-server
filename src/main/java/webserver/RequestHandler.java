@@ -64,7 +64,18 @@ public class RequestHandler extends Thread {
             final Map<String, String> params = parseQueryString(data);
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
             userService.joinUser(new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email")));
-            response302Header(dos, 0);
+            response302Header(dos);
+        }
+
+        if (POST.is(method) && LOGIN.is(url)) {
+            log.info("Login user");
+            String data = null;
+            if (requestMessage.containsKey(BODY.getKey())) {
+                data = requestMessage.get(BODY.getKey());
+                log.info("Get data {}", data);
+            }
+            final Map<String, String> params = parseQueryString(data);
+            loginOk(dos, userService.login(params.get("userId"), params.get("password")));
         }
 
         if (GET.is(method) && INDEX_FORM.is(url)) {
@@ -80,9 +91,39 @@ public class RequestHandler extends Thread {
             response200Header(dos, body.length);
             responseBody(dos, body);
         }
+
+        if (GET.is(method) && LOGIN_FORM.is(url)) {
+            log.info("Move to login form");
+            final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        }
+
+        if (GET.is(method) && LOGIN_FAILED_PAGE.is(url)) {
+            log.info("Move to login failed page");
+            final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        }
     }
 
-    private void response302Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void loginOk(DataOutputStream dos, boolean login) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            if (login) {
+                dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+                dos.writeBytes("Cookie: logined=true;");
+            } else {
+                dos.writeBytes("Location: http://localhost:8080/user/login_failed.html\r\n");
+                dos.writeBytes("Cookie: logined=false;");
+            }
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: http://localhost:8080/index.html\r\n");

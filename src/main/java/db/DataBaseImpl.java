@@ -2,6 +2,7 @@ package db;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.common.collect.Maps;
 
@@ -15,8 +16,8 @@ public class DataBaseImpl implements DataBase {
         users.put(user.getUserId(), user);
     }
 
-    public User findUserById(final String userId) {
-        return users.get(userId);
+    public Optional<User> findUserById(final String userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     public Collection<User> findAll() {
