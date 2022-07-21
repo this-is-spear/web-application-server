@@ -4,11 +4,13 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.UserService;
+import util.HttpRequestUtils;
 import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 
 import static util.HttpHeaderKey.BODY;
@@ -65,6 +67,24 @@ public class RequestHandler extends Thread {
             login(dos, userService.login(params.get("userId"), params.get("password")));
         }
 
+        if (GET.is(method) && USER_LIST.is(url)) {
+            Map<String, String> cookie = HttpRequestUtils.parseCookies(requestMessage.get("Cookie"));
+            if (!cookie.containsKey("logined") || cookie.get("logined").equals("false")) {
+                log.info("Access denied, please login");
+                response302Header(dos);
+            } else {
+                log.info("Get users");
+                StringBuilder stringBuilder = new StringBuilder();
+                List<User> users = userService.findAll();
+                users.forEach(
+                    user -> stringBuilder.append(String.format("%s %s %s\n\r", user.getUserId(), user.getName(), user.getEmail()))
+                );
+                byte[] body = stringBuilder.toString().getBytes();
+                responseDataHeader(dos, body.length);
+                responseBody(dos, body);
+            }
+        }
+
         if (GET.is(method) && INDEX_PAGE.is(url)) {
             log.info("Move to main form");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
@@ -88,6 +108,13 @@ public class RequestHandler extends Thread {
 
         if (GET.is(method) && LOGIN_FAILED_PAGE.is(url)) {
             log.info("Move to login failed page");
+            final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        }
+
+        if (GET.is(method) && USER_LIST_PAGE.is(url)) {
+            log.info("Get list");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -132,6 +159,17 @@ public class RequestHandler extends Thread {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void responseDataHeader(final DataOutputStream dos, final int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {

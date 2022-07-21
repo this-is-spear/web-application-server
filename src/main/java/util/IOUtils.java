@@ -40,7 +40,6 @@ public class IOUtils {
         requestMessages.put(REQUEST.getKey(), line);
 
         while (!(line = reader.readLine()).equals(END_POINT)) {
-            log.info("read : {}", line);
             Pair pair = parseHeader(line);
             requestMessages.put(pair.getKey(), pair.getValue());
         }

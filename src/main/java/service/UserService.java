@@ -4,6 +4,9 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final DataBase dataBase;
@@ -27,5 +30,9 @@ public class UserService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public List<User> findAll() {
+        return new ArrayList<>(dataBase.findAll());
     }
 }

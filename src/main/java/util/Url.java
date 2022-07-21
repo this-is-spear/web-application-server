@@ -6,7 +6,9 @@ public enum Url {
     REGISTER("/user/create"),
     LOGIN_PAGE("/user/login.html"),
     LOGIN("/user/login"),
-    LOGIN_FAILED_PAGE("/user/login_failed.html");
+    LOGIN_FAILED_PAGE("/user/login_failed.html"),
+    USER_LIST_PAGE("/user/list.html"),
+    USER_LIST("/user/list");
     private static final String QUERY = "?";
     private final String url;
 
