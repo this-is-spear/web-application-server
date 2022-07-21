@@ -1,7 +1,9 @@
 package webserver;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.UserService;
 import util.HttpMethod;
 import util.IOUtils;
 import util.Url;
@@ -16,13 +18,14 @@ import static util.HttpRequestUtils.parseQueryString;
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     private static final String NEW_LINE = System.getProperty("line.separator");
-    public static final String REGEX = " ";
-    public static final String QUERY = "?";
+    private static final String REGEX = " ";
+    private static final String QUERY = "?";
+    private final Socket connection;
+    private final UserService userService;
 
-    private Socket connection;
-
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, UserService userService) {
         this.connection = connectionSocket;
+        this.userService = userService;
     }
 
     public void run() {
@@ -53,7 +56,9 @@ public class RequestHandler extends Thread {
         log.info("URL {}, Http method is {}", url, method);
         if (HttpMethod.POST.is(method) && Url.REGISTER.getUrl().equals(url)) {
             log.info("Register User {}", params.get("name"));
+            User joinUser = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
+            userService.joinUser(joinUser);
             DataOutputStream dos = new DataOutputStream(out);
             response200Header(dos, 0);
         }
