@@ -64,7 +64,7 @@ public class RequestHandler extends Thread {
             final Map<String, String> params = parseQueryString(data);
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
             userService.joinUser(new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email")));
-            response200Header(dos, 0);
+            response302Header(dos, 0);
         }
 
         if (GET.is(method) && INDEX_FORM.is(url)) {
@@ -79,6 +79,16 @@ public class RequestHandler extends Thread {
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
         }
     }
 

@@ -40,7 +40,7 @@ public class WebServerTest {
             .when().post("/user/create")
             .then().log().all().extract();
 
-        assertThat(회원가입_요청.statusCode()).isEqualTo(HttpStatus.SC_OK);
+        assertThat(회원가입_요청.statusCode()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
     }
 
 }
