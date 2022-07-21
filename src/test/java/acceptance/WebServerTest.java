@@ -1,5 +1,6 @@
 package acceptance;
 
+import com.google.common.net.MediaType;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -33,9 +34,10 @@ public class WebServerTest {
     }
 
     @Test
-    public void sendRegisterHtml() {
+    public void sendRegister() {
         ExtractableResponse<Response> 회원가입_요청 = RestAssured.given().log().all()
-            .when().post("/user/create?userId=javajigi&password=password&name=JaeSung&email=javajigi%40slipp.net")
+            .body("userId=javajigi&password=password&name=JaeSung&email=javajigi%40slipp.net")
+            .when().post("/user/create")
             .then().log().all().extract();
 
         assertThat(회원가입_요청.statusCode()).isEqualTo(HttpStatus.SC_OK);
