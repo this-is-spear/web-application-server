@@ -4,16 +4,17 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.UserService;
-import util.HttpMethod;
 import util.IOUtils;
-import util.Url;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Map;
 
+import static util.HttpMethod.GET;
+import static util.HttpMethod.POST;
 import static util.HttpRequestUtils.parseQueryString;
+import static util.Url.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -38,50 +39,43 @@ public class RequestHandler extends Thread {
             String method = requestMessage.split(NEW_LINE)[0].split(REGEX)[0];
             String url = requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
 
-            // send response
-            if (url.contains(QUERY)) {
-                int index = url.indexOf(QUERY);
-                String requestPath = url.substring(0, index);
-                String params = url.substring(index + 1);
-                sendResponse(out, requestPath, parseQueryString(params), method);
-            } else {
-                sendResponsePage(out, url, method);
-            }
+            // get response
+            DataOutputStream dos = new DataOutputStream(out);
+            getResponse(dos, out, url, method);
+
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void sendResponse(OutputStream out, String url, Map<String, String> params, String method) {
+    private void getResponse(DataOutputStream dos, OutputStream out, String url, String method) throws IOException {
         log.info("URL {}, Http method is {}", url, method);
-        if (HttpMethod.POST.is(method) && Url.REGISTER.getUrl().equals(url)) {
-            log.info("Register User {}", params.get("name"));
-            User joinUser = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+        if (POST.is(method) && REGISTER.is(url)) {
+            log.info("Register User");
+            Map<String, String> params = getParams(url);
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
-            userService.joinUser(joinUser);
-            DataOutputStream dos = new DataOutputStream(out);
+            userService.joinUser(new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email")));
             response200Header(dos, 0);
         }
-    }
 
-    private void sendResponsePage(OutputStream out, String url, String method) throws IOException {
-        log.info("URL {}, Http method is {}", url, method);
-        if (HttpMethod.GET.is(method) && Url.INDEX_FORM.getUrl().equals(url)) {
+        if (GET.is(method) && INDEX_FORM.is(url)) {
             log.info("Move to main form");
-            getResponse(out, url);
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
         }
 
-        if (HttpMethod.GET.is(method) && Url.REGISTER_FORM.getUrl().equals(url)) {
+        if (GET.is(method) && REGISTER_FORM.is(url)) {
             log.info("Move to register form");
-            getResponse(out, url);
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
         }
     }
 
-    private void getResponse(OutputStream out, String url) throws IOException {
-        DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-        response200Header(dos, body.length);
-        responseBody(dos, body);
+    private Map<String, String> getParams(String url) {
+        int index = url.indexOf(QUERY);
+        return parseQueryString(url.substring(index + 1));
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
