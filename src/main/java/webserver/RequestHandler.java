@@ -4,7 +4,6 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.UserService;
-import util.HttpHeaderKey;
 import util.IOUtils;
 
 import java.io.*;
@@ -12,7 +11,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Map;
 
-import static util.HttpHeaderKey.*;
+import static util.HttpHeaderKey.BODY;
+import static util.HttpHeaderKey.REQUEST;
 import static util.HttpMethod.GET;
 import static util.HttpMethod.POST;
 import static util.HttpRequestUtils.parseQueryString;
