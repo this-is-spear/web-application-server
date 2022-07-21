@@ -8,7 +8,9 @@ public enum Url {
     LOGIN("/user/login"),
     LOGIN_FAILED_PAGE("/user/login_failed.html"),
     USER_LIST_PAGE("/user/list.html"),
-    USER_LIST("/user/list");
+    USER_LIST("/user/list"),
+    CSS_STYLE("/css/styles.css"),
+    BOOTSTRAP("/css/bootstrap.min.css");
     private static final String QUERY = "?";
     private final String url;
 
@@ -16,6 +18,9 @@ public enum Url {
         this.url = url;
     }
 
+    public static boolean isCSS(final String url) {
+        return CSS_STYLE.is(url) || BOOTSTRAP.is(url);
+    }
 
     public boolean is(final String url) {
         if (url.contains(QUERY)) {

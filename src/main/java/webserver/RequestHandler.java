@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import service.UserService;
 import util.HttpRequestUtils;
 import util.IOUtils;
+import util.Url;
 
 import java.io.*;
 import java.net.Socket;
@@ -117,6 +118,16 @@ public class RequestHandler extends Thread {
             log.info("Get list");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
+            responseBody(dos, body);
+        }
+
+        if (GET.is(method) && isCSS(url)) {
+            log.info("Get css");
+            final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/css;\r\n");
+            dos.writeBytes("Content-Length: " + body.length + "\r\n");
+            dos.writeBytes("\r\n");
             responseBody(dos, body);
         }
     }
