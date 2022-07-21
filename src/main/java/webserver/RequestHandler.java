@@ -2,8 +2,9 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpMethod;
 import util.IOUtils;
-import util.URL;
+import util.Url;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,6 +32,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // get request
             String requestMessage = IOUtils.getRequestMessage(in);
+            String method = requestMessage.split(NEW_LINE)[0].split(REGEX)[0];
             String url = requestMessage.split(NEW_LINE)[0].split(REGEX)[1];
 
             // send response
@@ -38,17 +40,18 @@ public class RequestHandler extends Thread {
                 int index = url.indexOf(QUERY);
                 String requestPath = url.substring(0, index);
                 String params = url.substring(index + 1);
-                sendResponse(out, requestPath, parseQueryString(params));
+                sendResponse(out, requestPath, parseQueryString(params), method);
             } else {
-                sendResponsePage(out, url);
+                sendResponsePage(out, url, method);
             }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void sendResponse(OutputStream out, String url, Map<String, String> params) {
-        if (URL.REGISTER.getUrl().equals(url)) {
+    private void sendResponse(OutputStream out, String url, Map<String, String> params, String method) {
+        log.info("URL {}, Http method is {}", url, method);
+        if (HttpMethod.POST.is(method) && Url.REGISTER.getUrl().equals(url)) {
             log.info("Register User {}", params.get("name"));
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
             DataOutputStream dos = new DataOutputStream(out);
@@ -56,14 +59,14 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void sendResponsePage(OutputStream out, String url) throws IOException {
-        log.info("Get URL {}", url);
-        if (URL.INDEX_FORM.getUrl().equals(url)) {
+    private void sendResponsePage(OutputStream out, String url, String method) throws IOException {
+        log.info("URL {}, Http method is {}", url, method);
+        if (HttpMethod.GET.is(method) && Url.INDEX_FORM.getUrl().equals(url)) {
             log.info("Move to main form");
             getResponse(out, url);
         }
 
-        if (URL.REGISTER_FORM.getUrl().equals(url)) {
+        if (HttpMethod.GET.is(method) && Url.REGISTER_FORM.getUrl().equals(url)) {
             log.info("Move to register form");
             getResponse(out, url);
         }

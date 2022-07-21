@@ -35,7 +35,7 @@ public class WebServerTest {
     @Test
     public void sendRegisterHtml() {
         ExtractableResponse<Response> 회원가입_요청 = RestAssured.given().log().all()
-            .when().get("/user/create?userId=javajigi&password=password&name=JaeSung&email=javajigi%40slipp.net")
+            .when().post("/user/create?userId=javajigi&password=password&name=JaeSung&email=javajigi%40slipp.net")
             .then().log().all().extract();
 
         assertThat(회원가입_요청.statusCode()).isEqualTo(HttpStatus.SC_OK);
