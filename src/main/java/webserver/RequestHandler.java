@@ -108,10 +108,10 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             if (login) {
                 dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
-                dos.writeBytes("Cookie: logined=true;");
+                dos.writeBytes("Set-Cookie: logined=true;");
             } else {
                 dos.writeBytes("Location: http://localhost:8080/user/login_failed.html\r\n");
-                dos.writeBytes("Cookie: logined=false;");
+                dos.writeBytes("Set-Cookie: logined=false;");
             }
             dos.writeBytes("\r\n");
         } catch (IOException e) {

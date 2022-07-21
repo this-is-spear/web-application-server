@@ -70,7 +70,8 @@ public class WebServerTest {
 
         assertThat(로그인_요청.statusCode()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
         assertThat(로그인_요청.headers().get("Location").getValue()).isEqualTo("http://localhost:8080/index.html");
-        assertThat(로그인_요청.headers().get("Cookie").getValue()).isEqualTo("logined=true;");
+        assertThat(로그인_요청.cookie("logined")).isEqualTo("true");
+
     }
 
 
@@ -86,7 +87,7 @@ public class WebServerTest {
 
         assertThat(로그인_요청.statusCode()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
         assertThat(로그인_요청.headers().get("Location").getValue()).isEqualTo("http://localhost:8080/user/login_failed.html");
-        assertThat(로그인_요청.headers().get("Cookie").getValue()).isEqualTo("logined=false;");
+        assertThat(로그인_요청.cookie("logined")).isEqualTo("false");
 
     }
 }
