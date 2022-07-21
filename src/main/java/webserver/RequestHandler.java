@@ -20,7 +20,6 @@ import static util.Url.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final String REGEX = " ";
     private final Socket connection;
     private final UserService userService;
@@ -63,7 +62,7 @@ public class RequestHandler extends Thread {
         if (POST.is(method) && LOGIN.is(url)) {
             log.info("Login user");
             final Map<String, String> params = parseQueryString(getData(requestMessage));
-            loginOk(dos, userService.login(params.get("userId"), params.get("password")));
+            login(dos, userService.login(params.get("userId"), params.get("password")));
         }
 
         if (GET.is(method) && INDEX_PAGE.is(url)) {
@@ -103,7 +102,7 @@ public class RequestHandler extends Thread {
         return null;
     }
 
-    private void loginOk(final DataOutputStream dos, final boolean login) {
+    private void login(final DataOutputStream dos, final boolean login) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             if (login) {

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static util.HttpHeaderKey.*;
+import static util.HttpRequestUtils.*;
 
 public class IOUtils {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -40,9 +41,8 @@ public class IOUtils {
 
         while (!(line = reader.readLine()).equals(END_POINT)) {
             log.info("read : {}", line);
-            final String header = line.split(COLON)[0].trim();
-            final String body = line.split(COLON)[1].trim();
-            requestMessages.put(header, body);
+            Pair pair = parseHeader(line);
+            requestMessages.put(pair.getKey(), pair.getValue());
         }
 
         if (requestMessages.containsKey(CONTENT_LENGTH.getKey())) {
