@@ -6,9 +6,9 @@ import java.util.Collection;
 
 public interface DataBase {
 
-    void addUser(User user);
+    void addUser(final User user);
 
-    User findUserById(String userId);
+    User findUserById(final String userId);
 
     Collection<User> findAll();
 }

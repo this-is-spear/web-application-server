@@ -11,16 +11,16 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final DataBase dataBase;
 
-    public UserService(DataBase dataBase) {
+    public UserService(final DataBase dataBase) {
         this.dataBase = dataBase;
     }
 
-    public void joinUser(User user) {
+    public void joinUser(final User user) {
         log.info("Join User and Save Database, User is {}", user.getName());
         dataBase.addUser(user);
     }
 
-    public User findUserById(String userId) {
+    public User findUserById(final String userId) {
         return dataBase.findUserById(userId);
     }
 

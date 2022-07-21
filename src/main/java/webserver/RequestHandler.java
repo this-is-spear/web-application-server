@@ -61,7 +61,7 @@ public class RequestHandler extends Thread {
                 log.info("Get data {}", data);
             }
 
-            Map<String, String> params = parseQueryString(data);
+            final Map<String, String> params = parseQueryString(data);
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
             userService.joinUser(new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email")));
             response200Header(dos, 0);

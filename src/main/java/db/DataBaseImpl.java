@@ -11,11 +11,11 @@ import service.DataBase;
 public class DataBaseImpl implements DataBase {
     private static final Map<String, User> users = Maps.newHashMap();
 
-    public void addUser(User user) {
+    public void addUser(final User user) {
         users.put(user.getUserId(), user);
     }
 
-    public User findUserById(String userId) {
+    public User findUserById(final String userId) {
         return users.get(userId);
     }
 

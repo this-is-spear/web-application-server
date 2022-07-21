@@ -4,7 +4,7 @@ public enum HttpMethod {
     GET,
     POST;
 
-    public boolean is(String method) {
+    public boolean is(final String method) {
         return this.name().equals(method);
     }
 }

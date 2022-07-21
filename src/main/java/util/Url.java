@@ -7,12 +7,12 @@ public enum Url {
     private static final String QUERY = "?";
     private final String url;
 
-    Url(String url) {
+    Url(final String url) {
         this.url = url;
     }
 
 
-    public boolean is(String url) {
+    public boolean is(final String url) {
         if (url.contains(QUERY)) {
             return this.url.equals(url.substring(0, url.indexOf(QUERY)));
         }

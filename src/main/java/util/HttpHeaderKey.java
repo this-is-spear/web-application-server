@@ -7,7 +7,7 @@ public enum HttpHeaderKey {
 
     private String key;
 
-    HttpHeaderKey(String key) {
+    HttpHeaderKey(final String key) {
         this.key = key;
     }
 
