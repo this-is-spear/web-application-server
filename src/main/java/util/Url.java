@@ -1,10 +1,10 @@
 package util;
 
 public enum Url {
-    INDEX_FORM("/index.html"),
-    REGISTER_FORM("/user/form.html"),
+    INDEX_PAGE("/index.html"),
+    REGISTER_PAGE("/user/form.html"),
     REGISTER("/user/create"),
-    LOGIN_FORM("/user/login.html"),
+    LOGIN_PAGE("/user/login.html"),
     LOGIN("/user/login"),
     LOGIN_FAILED_PAGE("/user/login_failed.html");
     private static final String QUERY = "?";

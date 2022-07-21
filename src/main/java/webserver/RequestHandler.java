@@ -78,21 +78,21 @@ public class RequestHandler extends Thread {
             loginOk(dos, userService.login(params.get("userId"), params.get("password")));
         }
 
-        if (GET.is(method) && INDEX_FORM.is(url)) {
+        if (GET.is(method) && INDEX_PAGE.is(url)) {
             log.info("Move to main form");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         }
 
-        if (GET.is(method) && REGISTER_FORM.is(url)) {
+        if (GET.is(method) && REGISTER_PAGE.is(url)) {
             log.info("Move to register form");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         }
 
-        if (GET.is(method) && LOGIN_FORM.is(url)) {
+        if (GET.is(method) && LOGIN_PAGE.is(url)) {
             log.info("Move to login form");
             final byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
