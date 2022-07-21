@@ -54,14 +54,7 @@ public class RequestHandler extends Thread {
         log.info("URL {}, Http method is {}", url, method);
         if (POST.is(method) && REGISTER.is(url)) {
             log.info("Register User");
-
-            String data = null;
-            if (requestMessage.containsKey(BODY.getKey())) {
-                data = requestMessage.get(BODY.getKey());
-                log.info("Get data {}", data);
-            }
-
-            final Map<String, String> params = parseQueryString(data);
+            final Map<String, String> params = parseQueryString(getData(requestMessage));
             log.info("User info : [ id : {} ][ password : { secret } ][ name : {} ]", params.get("userId"), params.get("name"));
             userService.joinUser(new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email")));
             response302Header(dos);
@@ -69,12 +62,7 @@ public class RequestHandler extends Thread {
 
         if (POST.is(method) && LOGIN.is(url)) {
             log.info("Login user");
-            String data = null;
-            if (requestMessage.containsKey(BODY.getKey())) {
-                data = requestMessage.get(BODY.getKey());
-                log.info("Get data {}", data);
-            }
-            final Map<String, String> params = parseQueryString(data);
+            final Map<String, String> params = parseQueryString(getData(requestMessage));
             loginOk(dos, userService.login(params.get("userId"), params.get("password")));
         }
 
@@ -107,7 +95,15 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void loginOk(DataOutputStream dos, boolean login) {
+    private String getData(final Map<String, String> requestMessage) {
+        if (requestMessage.containsKey(BODY.getKey())) {
+            log.info("Get data");
+            return requestMessage.get(BODY.getKey());
+        }
+        return null;
+    }
+
+    private void loginOk(final DataOutputStream dos, final boolean login) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             if (login) {
@@ -123,7 +119,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void response302Header(DataOutputStream dos) {
+    private void response302Header(final DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
